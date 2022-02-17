@@ -12,8 +12,14 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
-from tkinter import Tk     # from tkinter import Tk for Python 3.x
+from tkinter import Tk
 from tkinter.filedialog import askopenfilename
+
+from scapy.all import *
+
+def pcapparser(packets):
+    print(len(packets))
+    print(packets)
 
 class pcapVisualizer(App):
     
@@ -82,7 +88,7 @@ class pcapVisualizer(App):
 
     def visualize(self, instance):
         # Main program will work here
-        pass
+        pcapparser(rdpcap(self.filepath))
 
 if __name__ == "__main__":
     pcapVisualizer().run()
