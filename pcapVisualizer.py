@@ -1,4 +1,5 @@
 from kivy.config import Config
+from pcapkit import IPv4, IPv6
 Config.set('graphics', 'resizable', False)
 
 from msilib.schema import SelfReg
@@ -17,9 +18,58 @@ from tkinter.filedialog import askopenfilename
 
 from scapy.all import *
 
+import re
+import json
+from urllib.request import urlopen
+
 def pcapparser(packets):
-    print(len(packets))
-    print(packets)
+    f = open("map.txt", 'w')
+    for i, pkt in enumerate(packets):
+        text = str(pkt.sprintf("%IP.src%->%IP.dst%"))
+        f.write("\n*****************************************\n"+str(i)+"\n")
+        ips = text.split("->")
+        ip1 = ips[0]
+        ip2 = ips[1]
+        print("+",ip1,"+",ip2,sep="")
+        data = json.load(urlopen("http://ipinfo.io/"+ip1+"/json"))
+        IP=data['ip']
+        try:
+            org=data['org']
+        except KeyError:
+            org="NO DATA"
+        try:
+            city = data['city']
+        except KeyError:
+            city="NO DATA"
+        try:
+            country=data['country']
+        except KeyError:
+            country="NO DATA"
+        try:
+            region=data['region']
+        except KeyError:
+            region="NO DATA"
+        f.write('FROM\nIP : {4} \nRegion : {1} \nCountry : {2} \nCity : {3} \nOrg : {0}'.format(org,region,country,city,IP))
+        data = json.load(urlopen("http://ipinfo.io/"+ip2+"/json"))
+        IP=data['ip']
+        try:
+            org=data['org']
+        except KeyError:
+            org="NO DATA"
+        try:
+            city = data['city']
+        except KeyError:
+            city="NO DATA"
+        try:
+            country=data['country']
+        except KeyError:
+            country="NO DATA"
+        try:
+            region=data['region']
+        except KeyError:
+            region="NO DATA"
+        f.write('\n\nTO\nIP : {4} \nRegion : {1} \nCountry : {2} \nCity : {3} \nOrg : {0}'.format(org,region,country,city,IP))
+    f.close()        
 
 class pcapVisualizer(App):
     
